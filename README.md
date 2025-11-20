@@ -144,7 +144,12 @@ DATABASE_URL=sqlite+aiosqlite:///./db.sqlite3
 IS_DEV=True
 ```
 
-4. Start the backend server:
+4. (Optional) Seed the database with sample data:
+```bash
+python seed.py
+```
+
+5. Start the backend server:
 ```bash
 uvicorn main:app --reload
 ```

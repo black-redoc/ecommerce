@@ -50,7 +50,7 @@ const ItemDetail = () => {
           </div>
         </div>
         <img
-          className="rounded w-[400px] h-[500px]"
+          className="rounded w-[500px] h-[500px]"
           src={`https://picsum.photos/500/500`}
           alt={item.name}
         />
