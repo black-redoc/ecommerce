@@ -104,7 +104,10 @@ async def update_cart(db: AsyncSession, id: int, cart: CartIn):
 
     await db.commit()
 
-    # 7. Recargar el cart con los items actualizados
+    # 7. Expirar el cache de la sesión para forzar recarga desde la DB
+    db.expire_all()
+
+    # 8. Recargar el cart con los items actualizados
     result = await db.execute(
         select(CartModel)
         .where(CartModel.id == id)

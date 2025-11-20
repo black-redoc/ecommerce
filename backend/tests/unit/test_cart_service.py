@@ -96,7 +96,6 @@ async def test_cart_details_not_found(test_db):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="Test found a bug: update_cart may have caching issue with SQLite in-memory DB")
 async def test_update_cart_success(test_db):
     """Test updating a cart with new items"""
     # Create items
@@ -104,12 +103,17 @@ async def test_update_cart_success(test_db):
     item2 = await create_item(test_db, ItemIn(name="Item 2", value=20.0))
     item3 = await create_item(test_db, ItemIn(name="Item 3", value=30.0))
 
+    # Store IDs before they might be expired
+    item1_id = item1.id
+    item2_id = item2.id
+    item3_id = item3.id
+
     # Create cart with items 1 and 2
-    cart = await create_cart(test_db, CartIn(items=[item1.id, item2.id]))
+    cart = await create_cart(test_db, CartIn(items=[item1_id, item2_id]))
     assert cart.total == 30.0
 
     # Update cart to have items 2 and 3
-    update_data = CartIn(items=[item2.id, item3.id])
+    update_data = CartIn(items=[item2_id, item3_id])
     updated_cart = await update_cart(test_db, cart.id, update_data)
 
     assert updated_cart.id == cart.id
@@ -117,9 +121,12 @@ async def test_update_cart_success(test_db):
 
     # Verify the correct items are in the cart
     item_ids = {item.id for item in updated_cart.items}
-    assert item2.id in item_ids
-    assert item3.id in item_ids
-    assert item1.id not in item_ids
+    assert item2_id in item_ids
+    assert item3_id in item_ids
+    assert item1_id not in item_ids
+
+    # Verify total is correct
+    assert updated_cart.total == 50.0
 
 
 @pytest.mark.asyncio

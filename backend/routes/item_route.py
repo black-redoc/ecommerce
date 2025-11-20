@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from conf.database import get_db
 from services import item_service
@@ -14,7 +14,14 @@ async def get_items(page: int = 1, db: AsyncSession = Depends(get_db)):
 
 @router.get("/{id}", response_model=ItemOut)
 async def item_details(id: int, db: AsyncSession = Depends(get_db)):
-    return await item_service.get_item(db, id)
+    item = await item_service.get_item(db, id)
+    if not item:
+        raise HTTPException(
+            status_code=404,
+            detail="item not found",
+            headers={"content-type": "application/json"},
+        )
+    return item
 
 
 @router.post("/", response_model=ItemOut)

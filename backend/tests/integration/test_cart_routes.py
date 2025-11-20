@@ -86,7 +86,6 @@ async def test_get_cart_not_found(client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="Test found a bug: update_cart may have caching issue with SQLite in-memory DB")
 async def test_update_cart(client):
     """Test PUT /cart/{id} endpoint"""
     # Create items
@@ -117,9 +116,8 @@ async def test_update_cart(client):
     assert item3_id in item_ids
     assert item1_id not in item_ids
 
-    # Verify total (may need to recalculate due to session cache)
-    expected_total = sum(item["value"] for item in data["items"])
-    assert data["total"] == expected_total
+    # Verify total
+    assert data["total"] == 50.0
 
 
 @pytest.mark.asyncio
@@ -215,7 +213,6 @@ async def test_create_empty_cart(client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="Test found a bug: update_cart may have caching issue with SQLite in-memory DB")
 async def test_cart_operations_workflow(client):
     """Test complete workflow: create, read, update, delete"""
     # 1. Create items
@@ -242,9 +239,8 @@ async def test_cart_operations_workflow(client):
     assert update_response.status_code == 200
     updated_data = update_response.json()
     assert len(updated_data["items"]) == 2
-    # Verify total is calculated correctly from the items
-    expected_total = sum(item["value"] for item in updated_data["items"])
-    assert updated_data["total"] == expected_total
+    # Verify total is calculated correctly
+    assert updated_data["total"] == 30.0
 
     # 5. Delete cart
     delete_response = await client.delete(f"/cart/{cart_id}")

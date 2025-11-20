@@ -64,13 +64,11 @@ async def test_get_item_by_id(client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="Bug: endpoint returns None (invalid with ItemOut schema) instead of 404 for non-existent items")
 async def test_get_item_not_found(client):
     """Test GET /item/{id} with non-existent ID"""
     response = await client.get("/item/9999")
-    # Expected behavior would be 404, but service returns None
-    # which causes FastAPI validation error with ItemOut response_model
     assert response.status_code == 404
+    assert "item not found" in response.json()["detail"]
 
 
 @pytest.mark.asyncio
